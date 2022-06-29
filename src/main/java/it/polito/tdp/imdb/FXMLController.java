@@ -5,8 +5,14 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +41,10 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,17 +54,34 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
-
+    	Set<Actor> attori= new HashSet<Actor>(this.model.getComponenteConnessa2(boxAttore.getValue())); 
+    	List <Actor>attori2= new ArrayList<Actor>(attori); 
+    	Collections.sort(attori2);
+    	for (Actor a: attori2) {
+    	txtResult.appendText(a.toString()+ "\n");
+    }
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	txtResult.clear();
+    	if(boxGenere.getValue()!=null) {
+    	this.model.creaGrafo(boxGenere.getValue());
+    	txtResult.appendText("# VERTICI: " + this.model.nVertici() + "\n");
+    	txtResult.appendText("# ARCHI: " + this.model.nArchi()+ "\n");
+    	boxAttore.getItems().addAll(this.model.getVertici()); 
 
+    	
+    	}
+    	else txtResult.setText("Genere non inserito");
+    	
     }
 
     @FXML
     void doSimulazione(ActionEvent event) {
-
+    	this.model.Simulazione(Integer.parseInt(txtGiorni.getText()));
+    	txtResult.appendText("Giorni Pausa: "+ this.model.getGiorniPausa()); 
+    	txtResult.appendText(this.model.getAttoriInt().toString()); 
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -75,5 +98,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	boxGenere.getItems().addAll(this.model.getAllGenres()); 
     }
 }
